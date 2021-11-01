@@ -3,6 +3,7 @@ package com.uriel.demoweb.entities;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
@@ -13,7 +14,7 @@ public class MainEntity {
 	@Id
 	private long id;
 	private String primaryData;
-	@OneToMany
+	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "main_entity_id")
 	private Set<ComplementEntity> complementData;
 	

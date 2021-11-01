@@ -2,6 +2,7 @@ package com.uriel.demoweb.config;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -22,41 +23,36 @@ public class AppConfig {
 			MainEntityRepository mainEntityRepository, 
 			ComplementEntityRepository complementEntityRepository) {
 		return (args) -> {
-			MainEntity mainEntityOne = new MainEntity();
-			mainEntityOne.setId(1L);
-			mainEntityOne.setPrimaryData("Main Data 1");
-			mainEntityOne = mainEntityRepository.save(mainEntityOne);
 			
-			Set<ComplementEntity> complementData = new HashSet<>();
+			AtomicLong complementDataIdGenerator = new AtomicLong(1L);
+			
 			for(int i = 1; i <= 10; i++) {
-				ComplementEntity entityTwo = new ComplementEntity();
-				entityTwo.setId(i);
-				entityTwo.setSecundaryData("Data " + i);
-				complementData.add(entityTwo);
+				MainEntity mainEntity = new MainEntity();
+				mainEntity.setId(i);
+				mainEntity.setPrimaryData("Main Data " + i);
+				mainEntity = mainEntityRepository.save(mainEntity);
+				
+				Set<ComplementEntity> complementData = buildComplementData(complementDataIdGenerator , 5);
+				complementEntityRepository.saveAll(complementData);
+				
+				mainEntity.setComplementData(complementData);
+				mainEntityRepository.save(mainEntity);
 			}
-			
-			complementEntityRepository.saveAll(complementData);
-			
-			mainEntityOne.setComplementData(complementData);
-			mainEntityRepository.save(mainEntityOne);
-			
-			MainEntity mainEntityTwo = new MainEntity();
-			mainEntityTwo.setId(2L);
-			mainEntityTwo.setPrimaryData("Main Data 2");
-			mainEntityTwo = mainEntityRepository.save(mainEntityTwo);
-			
-			Set<ComplementEntity> complementDataTwo = new HashSet<>();
-			for(int i = 11; i <= 20; i++) {
-				ComplementEntity entityTwo = new ComplementEntity();
-				entityTwo.setId(i);
-				entityTwo.setSecundaryData("Data " + i);
-				complementDataTwo.add(entityTwo);
-			}
-			
-			complementEntityRepository.saveAll(complementDataTwo);
-			
-			mainEntityTwo.setComplementData(complementDataTwo);
-			mainEntityRepository.save(mainEntityTwo);
+
 		};
+	}
+	
+	private Set<ComplementEntity> buildComplementData(AtomicLong index, int numberOfEntities) {
+		Set<ComplementEntity> complementData = new HashSet<>();
+		for(int i = 0; i < numberOfEntities; i++) {
+			long complementDataId = index.getAndIncrement();
+			ComplementEntity entity = new ComplementEntity();
+			entity.setId(complementDataId);
+			entity.setSecundaryData("Data " + complementDataId);
+			
+			complementData.add(entity);
+		}
+		
+		return complementData;
 	}
 }
