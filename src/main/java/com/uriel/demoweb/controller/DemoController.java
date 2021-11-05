@@ -24,8 +24,7 @@ public class DemoController {
 	@GetMapping("all")
 	public List<MainEntity> findAllMainEntity() {
 		log.trace("findAllMainEntity -->");
-		List<MainEntity> result = mainEntityRepository
-				.findAllMainEntityAndComplement();
+		List<MainEntity> result = mainEntityRepository.findAll();
 		log.trace("--> findAllMainEntity");
 		return result;
 	}
